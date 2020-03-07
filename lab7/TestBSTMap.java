@@ -1,6 +1,8 @@
 import static org.junit.Assert.*;
 import org.junit.Test;
 
+import java.util.TreeMap;
+
 /** Tests by Brendan Hu, Spring 2015, revised for 2016 by Josh Hug */
 public class TestBSTMap {
 
@@ -16,6 +18,16 @@ public class TestBSTMap {
 	    }
     }
 
+    @Test
+    public void containsKeyTest() {
+        BSTMap<String, Integer> b = new BSTMap<String, Integer>();
+        for (int i = 0; i < 455; i++) {
+            b.put("hi" + i, 1+i);
+        }
+        assertTrue(b.containsKey("hi11"));
+        assertFalse(b.containsKey("h145555"));
+    }
+
     //assumes put/size/containsKey/get work
 	@Test
     public void sanityClearTest() {
@@ -23,8 +35,8 @@ public class TestBSTMap {
         for (int i = 0; i < 455; i++) {
             b.put("hi" + i, 1+i);
             //make sure put is working via containsKey and get
-            assertTrue( null != b.get("hi" + i) && (b.get("hi"+i).equals(1+i))
-                        && b.containsKey("hi" + i));
+            //assertTrue( null != b.get("hi" + i) && (b.get("hi"+i).equals(1+i))
+            //            && b.containsKey("hi" + i));
         }
         assertEquals(455, b.size());
         b.clear();
@@ -42,6 +54,7 @@ public class TestBSTMap {
         b.put("waterYouDoingHere", 0);
         assertTrue(b.containsKey("waterYouDoingHere"));
     }
+
 
     // assumes put works
     @Test
@@ -77,7 +90,30 @@ public class TestBSTMap {
         assertTrue(b.containsKey("hi") && b.get("hi") != null);
     }
 
+    @Test
+    public void printInOrderTest() {
+        BSTMap<String, Integer> b = new BSTMap<String, Integer>();
+        for (int i = 0; i < 455; i++)
+            b.put("hi" + i, 1);
+        b.printInOrder();
+        for (String key : b) {
+            System.out.print(key+ ' ');
+        }
+
+    }
+
+    @Test
+    public void reomoveTest() {
+        BSTMap<String, Integer> b = new BSTMap<String, Integer>();
+        for (int i = 0; i < 455; i++)
+            b.put("hi" + i, 1);
+        Integer actual = b.remove("hi5");
+        Integer expected = 1;
+        assertEquals(expected,actual);
+    }
+
     public static void main(String[] args) {
-        jh61b.junit.TestRunner.runTests(TestBSTMap.class);
+
+	    jh61b.junit.TestRunner.runTests(TestBSTMap.class);
     }
 }

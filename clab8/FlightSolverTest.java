@@ -55,4 +55,8 @@ public class FlightSolverTest {
         assertEquals(65, solver.solve());
     }
 
+    public static void main(String[] args) {
+        jh61b.junit.TestRunner.runTests(FlightSolverTest.class);
+    }
+
 }

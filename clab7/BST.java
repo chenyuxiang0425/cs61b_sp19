@@ -1,3 +1,4 @@
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 /*  @author Josh Hug, with most code created by:
@@ -246,4 +247,31 @@ public class BST<Key extends Comparable<Key>> {
     private boolean isEmpty() {
         return size() == 0;
     }
+
+    public double averageDepth() {
+        return (double) internalPathLength(root,0)/size();
+    }
+
+    private int internalPathLength(Node p, int depth) {
+        if (p == null) {
+            return 0;
+        }
+        return depth + internalPathLength(p.left,depth + 1) + internalPathLength(p.right, depth + 1);
+    }
+
+
+    public int Depth() {
+        return maxDepth(root);
+    }
+
+
+    private int maxDepth(Node p) {
+        if (p == null) {
+            return 0;
+        }
+        return 1 + Math.max(maxDepth(p.left),maxDepth(p.right));
+
+    }
+
+
 }

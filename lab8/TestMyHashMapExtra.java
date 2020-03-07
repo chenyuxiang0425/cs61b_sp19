@@ -10,6 +10,8 @@ public class TestMyHashMapExtra {
     public void testRemove() {
         MyHashMap<String, String> q = new MyHashMap<String, String>();
         q.put("c", "a");
+        assertTrue(null != q.remove("c"));
+        q.put("c", "a");
         q.put("b", "a");
         q.put("a", "a");
         q.put("d", "a");

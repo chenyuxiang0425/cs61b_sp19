@@ -4,6 +4,7 @@ import huglife.Creature;
 import huglife.Direction;
 import huglife.Action;
 import huglife.Occupant;
+import static huglife.HugLifeUtils.randomEntry;
 
 import java.awt.Color;
 import java.util.ArrayDeque;
@@ -31,13 +32,37 @@ public class Plip extends Creature {
     private int b;
 
     /**
+     * fraction of energy to lose when moving.
+     */
+    private double movEnergyLosed = 0.15;
+
+    /**
+     * fraction of energy to gain when staying.
+     */
+    private double StayEnergyGained = 0.2;
+
+
+    /**
+     * degree of energy shift to low than 2.
+     */
+    private double eneryLargest = 2;
+
+    /**
+     * degree of energy shift to larger than 0.
+     */
+    private double energyLowest = 0;
+
+
+
+
+    /**
      * creates plip with energy equal to E.
      */
     public Plip(double e) {
         super("plip");
-        r = 0;
-        g = 0;
-        b = 0;
+        r = 99;
+        g = (int) (96 * e + 63);
+        b = 76;
         energy = e;
     }
 
@@ -57,7 +82,6 @@ public class Plip extends Creature {
      * that you get this exactly correct.
      */
     public Color color() {
-        g = 63;
         return color(r, g, b);
     }
 
@@ -74,15 +98,20 @@ public class Plip extends Creature {
      * private static final variable. This is not required for this lab.
      */
     public void move() {
-        // TODO
+        this.energy = this.energy - movEnergyLosed;
+        if (this.energy < energyLowest){
+            this.energy = energyLowest;
+        }
     }
-
 
     /**
      * Plips gain 0.2 energy when staying due to photosynthesis.
      */
     public void stay() {
-        // TODO
+        this.energy = this.energy + StayEnergyGained;
+        if (this.energy > eneryLargest) {
+            this.energy = eneryLargest;
+        }
     }
 
     /**
@@ -91,7 +120,8 @@ public class Plip extends Creature {
      * Plip.
      */
     public Plip replicate() {
-        return this;
+        this.energy = this.energy * 0.5;
+        return new Plip(this.energy);
     }
 
     /**
@@ -114,17 +144,25 @@ public class Plip extends Creature {
         // TODO
         // (Google: Enhanced for-loop over keys of NEIGHBORS?)
         // for () {...}
-
-        if (false) { // FIXME
-            // TODO
+        for (Direction d : neighbors.keySet()) {
+            if (neighbors.get(d).name().equals("empty")) { // FIXME
+                emptyNeighbors.add(d);
+            } else if (neighbors.get(d).name().equals("clorus")){
+                anyClorus = true;
+            }
         }
-
+        if (emptyNeighbors.isEmpty()) {
+            return new Action(Action.ActionType.STAY);
+        } else if (energy > 1.0) {
         // Rule 2
         // HINT: randomEntry(emptyNeighbors)
-
+            return new Action(Action.ActionType.REPLICATE, randomEntry(emptyNeighbors));
+        } else if (anyClorus) {
         // Rule 3
-
-        // Rule 4
-        return new Action(Action.ActionType.STAY);
+            return new Action(Action.ActionType.MOVE, randomEntry(emptyNeighbors));
+        } else {
+            // Rule 4
+            return new Action(Action.ActionType.STAY);
+        }
     }
 }

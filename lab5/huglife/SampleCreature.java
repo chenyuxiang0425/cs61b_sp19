@@ -33,7 +33,7 @@ public class SampleCreature extends Creature {
     /**
      * blue color.
      */
-    private int b = 76;
+    private int b = 11;
     /**
      * probability of taking a move when ample space available.
      */
