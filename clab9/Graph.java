@@ -74,7 +74,7 @@ public class Graph {
         void addNeighbor(Node neighbor) {
             neighbors.add(neighbor);
             if (!neighbor.neighbors.contains(this)) {
-                neighbor.addNeighbor(this);
+                neighbor.addNeighbor(this);  // A add B and B add A
             }
         }
 

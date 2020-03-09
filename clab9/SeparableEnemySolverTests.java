@@ -61,4 +61,7 @@ public class SeparableEnemySolverTests {
         assertEquals(false, solver.isSeparable());
     }
 
+    public static void main(String[] args) {
+        jh61b.junit.TestRunner.runTests(SeparableEnemySolverTests.class);
+    }
 }

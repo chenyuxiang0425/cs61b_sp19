@@ -23,8 +23,27 @@ public class SeparableEnemySolver {
      * Returns true if input is separable, false otherwise.
      */
     public boolean isSeparable() {
-        // TODO: Fix me
-        return false;
+        HashMap<String, Integer> colors = new HashMap<>();
+        int color = 1;
+        // to make sure it works when the graph is not connected
+        for (String label: g.labels()) {
+            if (colors.containsKey(label)) continue; // dont want to check every label of one connected graph
+            if (!dfs(label,colors,color)) return false;
+        }
+        return true;
+    }
+
+    private boolean dfs(String label,Map<String, Integer> colors, int color) {
+        if (colors.containsKey(label)) {  // Recursive termination condition
+            return colors.get(label).equals(color);
+        }
+        colors.put(label,color);
+        for (String neighbor : g.neighbors(label)) {
+            // if neighbor's color is exist and is different from my color, pass
+            if (colors.containsKey(neighbor) && !colors.get(neighbor).equals(color)) continue;
+            if (!dfs(neighbor,colors,-1 * color)) return false;
+        }
+        return true;
     }
 
 
@@ -87,3 +106,4 @@ public class SeparableEnemySolver {
     /* END HELPERS  FOR READING IN CSV FILES. */
 
 }
+
