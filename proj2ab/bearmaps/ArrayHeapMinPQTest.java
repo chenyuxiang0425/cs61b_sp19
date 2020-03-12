@@ -1,9 +1,6 @@
 package bearmaps;
 
 import org.junit.Test;
-
-import java.util.PropertyResourceBundle;
-
 import static org.junit.Assert.*;
 
 public class ArrayHeapMinPQTest {
