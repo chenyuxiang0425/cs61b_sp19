@@ -77,6 +77,31 @@ public class KDTreeTest {
         return points;
     }
 
+    @Test
+    public void timeTest() {
+        List<Point> randomPoints = randomPoints(100000);
+        KDTree kd = new KDTree(randomPoints);
+        NaivePointSet nps = new NaivePointSet(randomPoints);
+        List<Point> queryPoints = randomPoints(10000);
+
+        long start = System.currentTimeMillis();
+        for (Point point: queryPoints) {
+            nps.nearest(point.getX(),point.getY());
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("After 10000 queries, NaivePointSet spends " + (end - start) +" time.");
+
+        start = System.currentTimeMillis();
+        for (Point point: queryPoints) {
+            kd.nearest(point.getX(),point.getY());
+        }
+        end = System.currentTimeMillis();
+        System.out.println("After 10000 queries, NaivePointSet spends " + (end - start) +" time.");
+
+    }
+
+
+
     public static void main(String[] args) {
         jh61b.junit.TestRunner.runTests(KDTreeTest.class);
     }
