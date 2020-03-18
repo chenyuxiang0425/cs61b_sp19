@@ -95,4 +95,8 @@ public class BnBSolverTests {
         }
     }
 
+    public static void main(String[] args) {
+        jh61b.junit.TestRunner.runTests(BnBSolverTests  .class);
+    }
+
 }
