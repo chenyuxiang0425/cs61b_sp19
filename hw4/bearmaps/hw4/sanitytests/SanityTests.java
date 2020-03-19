@@ -79,5 +79,7 @@ public class SanityTests {
         assertEquals(expectedOutcome, actualOutcome);
     }
 
-
+    public static void main(String[] args) {
+        jh61b.junit.TestRunner.runTests(SanityTests.class);
+    }
 }
