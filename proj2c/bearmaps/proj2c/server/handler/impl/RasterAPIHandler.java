@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static bearmaps.proj2c.utils.Constants.SEMANTIC_STREET_GRAPH;
-import static bearmaps.proj2c.utils.Constants.ROUTE_LIST;
+import static bearmaps.proj2c.utils.Constants.*;
+import static bearmaps.proj2c.utils.Constants.ROOT_ULLAT;
 
 /**
  * Handles requests from the web browser for map images. These images
@@ -84,12 +84,158 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
      */
     @Override
     public Map<String, Object> processRequest(Map<String, Double> requestParams, Response response) {
-        //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
-        //System.out.println(requestParams);
+        System.out.println("yo, wanna know the parameters given by the web browser? They are:");
+        System.out.println(requestParams);
+
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
-        return results;
+        //query_success
+        boolean query_success = validateTheParams(requestParams);
+        results.put("query_success", query_success);
+
+        // depth
+        int depth = processRequestGetDepth(requestParams);
+        results.put("depth", depth);
+        //lon and lat
+        Map<String, Object> coordinateUL = processRequestGetXYLonLat(requestParams.get("ullon"),requestParams.get("ullat"),depth,"ul");
+        Map<String, Object> coordinateLR = processRequestGetXYLonLat(requestParams.get("lrlon"),requestParams.get("lrlat"),depth,"lr");
+        results.put("raster_ul_lon", coordinateUL.get("lon"));
+        results.put("raster_ul_lat", coordinateUL.get("lat"));
+        results.put("raster_lr_lon", coordinateLR.get("lon"));
+        results.put("raster_lr_lat", coordinateLR.get("lat"));
+        // render_grid: list of png
+        int xLeft = (int) coordinateUL.get("x");
+        int xRight = (int) coordinateLR.get("x");
+        int yLeft = (int) coordinateUL.get("y");
+        int yRight = (int) coordinateLR.get("y");
+        String[] [] pnglist = pngList(depth,xLeft,xRight,yLeft,yRight);
+        results.put("render_grid", pnglist);
+         return results;
+    }
+
+    private boolean validateTheParams(Map<String, Double> requestParams) {
+        double lrlon = requestParams.get("lrlon");
+        double ullon = requestParams.get("ullon");
+        double lrlat = requestParams.get("lrlat");
+        double ullat = requestParams.get("ullat");
+        if (lrlon < ullon || lrlat > ullat)  return false;
+        return !(ullon > ROOT_LRLON) && !(lrlon < ROOT_ULLON) && !(ullat < ROOT_LRLAT) && !(lrlat > ROOT_ULLAT);
+    }
+
+
+    private String[][] pngList(int depth,int xLeft,int xRight,int yLeft,int yRight) {
+        int rowNum = yRight - yLeft + 1;
+        int colNum = xRight - xLeft + 1;
+        String[][] renderGrid = new String[rowNum][colNum];
+        for (int i = 0; i < rowNum; i++) {
+            for (int j = 0; j < colNum; j++) {
+                renderGrid[i][j] = "d" + depth + "_x" + (xLeft + j) + "_y" + (yLeft + i) + ".png";
+            }
+        }
+        return renderGrid;
+    }
+
+    //O(1)time,much better
+    private Map<String, Object> processRequestGetXYLonLat(double lon,double lat,int depth,String condition) {
+        int x = 0;
+        int y = 0;
+        double locatedLon = ROOT_ULLON;
+        double locatedLat = ROOT_LRLAT;
+        if (lon < ROOT_ULLON) lon = ROOT_ULLON;
+        if (lat < ROOT_LRLAT) lat = ROOT_LRLAT;
+        int bounds = (int)(Math.pow(2,depth) - 1);
+
+
+        Map<String, Object> pointProperty = new HashMap<>();
+
+        double deltLon = (ROOT_LRLON - ROOT_ULLON) / Math.pow(2,depth);
+        double deltLat = (ROOT_ULLAT - ROOT_LRLAT) / Math.pow(2,depth);
+
+        double calcLat = Math.floor(Math.abs(lat - ROOT_ULLAT) / deltLat);
+        double calcLon = Math.floor(Math.abs(lon - ROOT_ULLON) / deltLon);
+        if (condition.equals("ul")) {
+            x = (int) calcLon;
+            y = (int) calcLat;
+            locatedLon = (x * deltLon) +  ROOT_ULLON;
+            locatedLat = -(y * deltLat) +  ROOT_ULLAT;
+        }
+
+        if (condition.equals("lr")) {
+            x = (int) calcLon;
+            y = (int) calcLat;
+            locatedLon = ((x+1) * deltLon) +  ROOT_ULLON;
+            locatedLat = -((y+1) * deltLat) +  ROOT_ULLAT;
+        }
+
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x > bounds) x = bounds;
+        if (y > bounds) y = bounds;
+        if (locatedLon > ROOT_LRLON) locatedLon = ROOT_LRLON;
+        if (locatedLon < ROOT_ULLON) locatedLon = ROOT_ULLON;
+        if (locatedLat > ROOT_ULLAT) locatedLat = ROOT_ULLAT;
+        if (locatedLat < ROOT_LRLAT) locatedLat = ROOT_LRLAT;
+
+        pointProperty.put("x",x);
+        pointProperty.put("y",y);
+        pointProperty.put("lon", locatedLon);
+        pointProperty.put("lat", locatedLat);
+        return pointProperty;
+    }
+
+    // O(N)time, not good
+    private Map<String, Object> naiveprocessRequestGetXYLonLat(double lon,double lat,int depth,String condition) {
+        int x = 0; // x from 0 to 2^depth -1
+        int y = (int) Math.pow(2,depth) - 1; // y from 0 to 2^depth -1
+        // init map
+        if (lon < ROOT_ULLON) lon = ROOT_ULLON;
+        if (lat < ROOT_LRLAT) lat = ROOT_LRLAT;
+
+        Map<String, Object> pointProperty = new HashMap<>();
+        //pointProperty : as to d2_x0_y1.png
+        //                x is the leftest and rightest x of the png
+        //                lon is the leftest and rightest lon of the png
+
+        double deltLon = (ROOT_LRLON - ROOT_ULLON) / Math.pow(2,depth);
+        double deltLat = (ROOT_ULLAT - ROOT_LRLAT) / Math.pow(2,depth);
+
+        for (double initLon = ROOT_ULLON;initLon < ROOT_LRLON; initLon += deltLon) {
+            if (lon < initLon) {
+                if (condition.equals("lr")) {
+                    pointProperty.put("lon", initLon);
+                }
+                break;
+            }
+            pointProperty.put("x",x);
+            pointProperty.put("lon",initLon);
+            x = x + 1;
+        }
+        for (double initLat = ROOT_LRLAT; initLat < ROOT_ULLAT; initLat += deltLat) {
+            if (lat < initLat) {
+                if (condition.equals("ul")) {
+                    pointProperty.put("lat", initLat);
+                }
+                break;
+            }
+            pointProperty.put("y",y);
+            pointProperty.put("lat",initLat);
+            y = y - 1;
+        }
+        return pointProperty;
+    }
+
+    // return Deep
+    private int processRequestGetDepth(Map<String, Double> requestParams) {
+        double lrlon = requestParams.get("lrlon");
+        double ullon = requestParams.get("ullon");
+        double width = requestParams.get("w");
+        double LonDPP = (lrlon - ullon) / width;
+        double LonDPPOrigin = (ROOT_LRLON - ROOT_ULLON)/TILE_SIZE;
+        int depth = 0;
+        while (LonDPP < LonDPPOrigin && depth < 7) {
+            LonDPPOrigin = LonDPPOrigin / 2;
+            depth +=1;
+        }
+        return depth;
     }
 
     @Override

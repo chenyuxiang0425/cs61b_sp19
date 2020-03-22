@@ -29,7 +29,6 @@ public class TestRasterAPIHandler {
     private static final int NUM_TESTS = 8;
     private static RasterAPIHandler rasterer;
 
-
     @Before
     public void setUp() throws Exception {
         rasterer = new RasterAPIHandler();
