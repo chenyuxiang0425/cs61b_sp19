@@ -1,7 +1,10 @@
 package bearmaps.proj2c;
 
-import java.util.List;
-import java.util.Objects;
+import bearmaps.hw4.AStarSolver;
+import bearmaps.hw4.WeightedEdge;
+import bearmaps.hw4.WeirdSolver;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,10 +27,9 @@ public class Router {
      */
     public static List<Long> shortestPath(AugmentedStreetMapGraph g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        //long src = g.closest(stlon, stlat);
-        //long dest = g.closest(destlon, destlat);
-        //return new WeirdSolver<>(g, src, dest, 20).solution();
-        return null;
+        long src = g.closest(stlon, stlat);
+        long dest = g.closest(destlon, destlat);
+        return new AStarSolver<>(g, src, dest, 20).solution();
     }
 
     /**
@@ -38,9 +40,102 @@ public class Router {
      * @return A list of NavigatiionDirection objects corresponding to the input
      * route.
      */
+    // https://github.com/zangsy/cs61b_sp19/blob/master/proj2c/bearmaps/proj2c/Router.java
     public static List<NavigationDirection> routeDirections(AugmentedStreetMapGraph g, List<Long> route) {
         /* fill in for part IV */
-        return null;
+        double currEdgeDistance = 0;
+        int currDir = 0;
+        List<NavigationDirection> directionList = new ArrayList<>();
+        List<WeightedEdge<Long>> ways = getWays(g, route);
+        // only have less than two vertexes
+        if (ways.size() <= 2) {
+            NavigationDirection nadir = setNaviDir(currDir,ways.get(0).getName(),ways.get(0).weight());
+            directionList.add(nadir);
+            return directionList;
+        }
+        // more than two vertexes
+        for (int i = 1; i < ways.size(); i++) {
+            WeightedEdge<Long> prevEdge = ways.get(i - 1);
+            WeightedEdge<Long> nextEdge = ways.get(i);
+
+            long prevVertex = prevEdge.from();
+            long currVertex = prevEdge.to();
+            long nextVertex = nextEdge.to();
+
+            Map<String,Double> prevPos = getPos(g,prevVertex);
+            Map<String,Double> currPos = getPos(g,currVertex);
+            Map<String,Double> nextPos = getPos(g,nextVertex);
+
+            String prevWayName = prevEdge.getName() != null ? prevEdge.getName(): "unknown road";
+            String nextWayName = nextEdge.getName() != null ? nextEdge.getName(): "unknown road";
+
+            currEdgeDistance += prevEdge.weight();
+
+            if (!prevWayName.equals(nextWayName)) {
+                double prevBearing = NavigationDirection.bearing(prevPos.get("lon"),currPos.get("lon"),prevPos.get("lat"),currPos.get("lat"));
+                double nextBearing = NavigationDirection.bearing(currPos.get("lon"),nextPos.get("lon"),currPos.get("lat"),nextPos.get("lat"));
+
+                int currDirToChange = NavigationDirection.getDirection(prevBearing,nextBearing);
+                NavigationDirection naviDir = setNaviDir(currDir, prevWayName, currEdgeDistance);
+                directionList.add(naviDir);
+
+                currDir = currDirToChange;
+                currEdgeDistance = 0;
+            }
+
+            //lastVertex: to the target
+            if (i == ways.size() -1) {
+                currEdgeDistance += nextEdge.weight();
+                NavigationDirection naviDir = setNaviDir(currDir, nextWayName, currEdgeDistance);
+                directionList.add(naviDir);
+            }
+        }
+        return directionList;
+    }
+
+    //get the lat and log of the vertex
+    private static Map<String,Double> getPos(AugmentedStreetMapGraph g, long Vertex) {
+        Map<String,Double> pos = new HashMap<>();
+        pos.put("lat",g.lat(Vertex));
+        pos.put("lon",g.lon(Vertex));
+        return pos;
+    }
+
+    /**
+     *
+     * @param g helper method. Here is used to get the vertex's neighbors.
+     * @param route list of vertex
+     * @return list of the WeightedEdge<Long> Objects. this is the distance of two vertexes
+     */
+    private static List<WeightedEdge<Long>> getWays(AugmentedStreetMapGraph g, List<Long> route) {
+        List<WeightedEdge<Long>> ways = new ArrayList<>();
+
+        for (int i = 1 ; i < route.size(); i++) {
+            long currVertex = route.get(i - 1);
+            long nextVertex = route.get(i);
+            for (WeightedEdge<Long> edge : g.neighbors(currVertex)) {
+                if (edge.to().equals(nextVertex)) {
+                    ways.add(edge);
+                }
+            }
+        }
+        return ways;
+    }
+
+
+    /**
+     * Create a new NavigationDirection object from given direction, way, distance.
+     * @param direction direction
+     * @param wayName wayName
+     * @param distance distance
+     * @return a new NavigationDirection
+     */
+    private static NavigationDirection setNaviDir(int direction, String wayName, double distance) {
+        NavigationDirection naviDir = new NavigationDirection();
+        naviDir.direction = direction;
+        naviDir.way = wayName;
+        naviDir.distance = distance;
+        return naviDir;
     }
 
     /**
