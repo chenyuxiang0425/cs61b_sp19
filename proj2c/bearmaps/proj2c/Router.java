@@ -48,7 +48,7 @@ public class Router {
         List<NavigationDirection> directionList = new ArrayList<>();
         List<WeightedEdge<Long>> ways = getWays(g, route);
         // only have less than two vertexes
-        if (ways.size() <= 2) {
+        if (ways.size() == 1) {
             NavigationDirection nadir = setNaviDir(currDir,ways.get(0).getName(),ways.get(0).weight());
             directionList.add(nadir);
             return directionList;
