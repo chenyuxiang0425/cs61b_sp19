@@ -1,7 +1,6 @@
 package bearmaps.hw4;
 
 import bearmaps.proj2ab.ArrayHeapMinPQ;
-import edu.princeton.cs.algs4.Stopwatch;
 
 import java.util.*;
 

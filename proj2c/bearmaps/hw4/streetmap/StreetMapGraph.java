@@ -71,12 +71,12 @@ public class StreetMapGraph implements AStarGraph<Long> {
     private static StreetMapGraph readFromXML(String filename) {
         StreetMapGraph smg = new StreetMapGraph();
         try {
-            File inputFile = new File(filename);
-            FileInputStream inputStream = new FileInputStream(inputFile);
+//            File inputFile = new File(filename);
+//            FileInputStream inputStream = new FileInputStream(inputFile);
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             GraphBuildingHandler gbh = new GraphBuildingHandler(smg);
-            saxParser.parse(inputStream, gbh);
+            saxParser.parse(Thread.currentThread().getContextClassLoader().getResourceAsStream(filename), gbh);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
