@@ -25,10 +25,10 @@ public class Constants {
      * The OSM XML file path. Downloaded from <a href="http://download.bbbike.org/osm/">here</a>
      * using custom region selection.
      **/
-    public static final String OSM_DB_PATH = "../library-sp19/data/proj2c_xml/berkeley-2019.osm.xml";
+    public static final String OSM_DB_PATH = "data/proj2c_xml/berkeley-2019.osm.xml";
 
     /** The tile images are in the IMG_ROOT folder. */
-    public static final String IMG_ROOT = "../library-sp19/data/proj2c_imgs/";
+    public static final String IMG_ROOT = "data/proj2c_imgs/";
 
     /** Route stroke information: Cyan with half transparency. */
     public static final Color ROUTE_STROKE_COLOR = new Color(108, 181, 230, 200);

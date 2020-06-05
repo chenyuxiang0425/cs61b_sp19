@@ -16,10 +16,10 @@ import static org.junit.Assert.assertEquals;
 /** Test of the written driving directions part of the assignment. This part of the assignment is 
   * optional and not worth any credit, and these tests should be thought of as just for fun.*/
 public class TestDirections {
-    private static final String PATHS_FILE = "../library-sp19/data/proj2c_test_inputs/path_results.txt";
-    private static final String RESULTS_FILE = "../library-sp19/data/proj2c_test_inputs/directions_results.txt";
+    private static final String PATHS_FILE = "data/proj2c_test_inputs/path_results.txt";
+    private static final String RESULTS_FILE = "data/proj2c_test_inputs/directions_results.txt";
     private static final int NUM_TESTS = 8;
-    private static final String OSM_DB_PATH = "../library-sp19/data/proj2c_xml/berkeley-2019.osm.xml";
+    private static final String OSM_DB_PATH = "data/proj2c_xml/berkeley-2019.osm.xml";
     private static AugmentedStreetMapGraph graph;
 
     @Before

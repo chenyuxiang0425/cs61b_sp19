@@ -17,10 +17,10 @@ import static org.junit.Assert.assertEquals;
 
 /** Test of the routing part of the assignment. */
 public class TestRouter {
-    private static final String PARAMS_FILE = "../library-sp19/data/proj2c_test_inputs/path_params.txt";
-    private static final String RESULTS_FILE = "../library-sp19/data/proj2c_test_inputs/path_results.txt";
+    private static final String PARAMS_FILE = "data/proj2c_test_inputs/path_params.txt";
+    private static final String RESULTS_FILE = "data/proj2c_test_inputs/path_results.txt";
     private static final int NUM_TESTS = 8;
-    private static final String OSM_DB_PATH = "../library-sp19/data/proj2c_xml/berkeley-2019.osm.xml";
+    private static final String OSM_DB_PATH = "data/proj2c_xml/berkeley-2019.osm.xml";
     private static AugmentedStreetMapGraph graph;
     private static boolean initialized = false;
 
